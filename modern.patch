@@ -1,0 +1,15 @@
+--- pygtkglext-1.0.1/gtk/gdkgl/gdkglmodule.c~	2003-04-13 06:13:32.000000000 +0000
++++ pygtkglext-1.0.1/gtk/gdkgl/gdkglmodule.c	2018-12-02 12:23:21.722286786 +0000
+@@ -83,9 +83,9 @@
+ 
+     /* GdkGLExt version */
+     tuple = Py_BuildValue("(iii)",
+-                          gdkglext_major_version,
+-                          gdkglext_minor_version,
+-                          gdkglext_micro_version);
++                          gdk_gl_get_major_version(),
++                          gdk_gl_get_minor_version(),
++                          gdk_gl_get_micro_version());
+     PyDict_SetItemString(d, "gdkglext_version", tuple);    
+     Py_DECREF(tuple);
+ 

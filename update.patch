@@ -1,0 +1,1457 @@
+diff --git a/ChangeLog b/ChangeLog
+index a7031af..4c82bba 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,8 +1,9 @@
+-2003-11-20  Naofumi Yasufuku  <naofumi@users.sourceforge.net>
++2004-01-29  Naofumi Yasufuku  <naofumi@users.sourceforge.net>
+ 
+-	* ==== Released 1.0.1 ====
+-
+-	* configure.in: Version 1.0.1.
++	* examples/teapot2.py (Teapot.button_motion): 
++	* examples/coolwave.py (CoolWave.button_motion): 
++	* examples/Shapes.py (Shapes.button_motion): Use '&' instead '=='
++	to check button events' event.state value.
+ 
+ 2003-11-14  Naofumi Yasufuku  <naofumi@users.sourceforge.net>
+ 
+diff --git a/examples/MoveLight.py b/examples/MoveLight.py
+index 37cb4c1..327c68a 100644
+--- a/examples/MoveLight.py
++++ b/examples/MoveLight.py
+@@ -97,11 +97,11 @@ class MoveLight(GLScene,
+         glTranslated(0.0, 0.0, 1.5)
+         glDisable(GL_LIGHTING)
+         glColor3f(0.0, 1.0, 1.0)
+-        gtk.gdkgl.draw_cube(gtk.FALSE, 0.1)
++        gtk.gdkgl.draw_cube(False, 0.1)
+         glEnable(GL_LIGHTING)
+         glPopMatrix()
+         
+-        gtk.gdkgl.draw_torus(gtk.TRUE, 0.275, 0.85, 8, 15)
++        gtk.gdkgl.draw_torus(True, 0.275, 0.85, 8, 15)
+         glPopMatrix()
+ 
+     def reshape(self, width, height):
+diff --git a/examples/Shapes.py b/examples/Shapes.py
+index ec7f237..6cd0f53 100644
+--- a/examples/Shapes.py
++++ b/examples/Shapes.py
+@@ -69,7 +69,7 @@ class Shapes(GLScene,
+         self.colourFg = [1.0, 0.0, 0.0]
+         self.colourBg = self.guiBg
+         
+-        self.is_solid = gtk.FALSE
++        self.is_solid = False
+         
+         self.__drawShape = { 'Helicoid'     : self.__draw_helicoid,
+                              'Teapot'       : self.__draw_teapot,
+@@ -240,7 +240,7 @@ class ShapesWindow(gtk.Window):
+         self.connect('destroy', lambda quit: gtk.main_quit())
+         if sys.platform != 'win32':
+             self.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.set_reallocate_redraws(gtk.TRUE)
++        self.set_reallocate_redraws(True)
+         
+         # Create the table that will hold everything.
+         self.table = gtk.Table(3, 3)
+@@ -306,7 +306,7 @@ class ShapesWindow(gtk.Window):
+                           xoptions=gtk.FILL, yoptions=gtk.FILL)
+         
+         # A box to hold some control interface stuff.
+-        self.cbox = gtk.HBox(gtk.TRUE, spacing=10)
++        self.cbox = gtk.HBox(True, spacing=10)
+         self.cbox.show()
+         self.table.attach(self.cbox, 1, 2, 2, 3,
+                           xoptions=gtk.FILL, yoptions=gtk.FILL)
+@@ -324,12 +324,12 @@ class ShapesWindow(gtk.Window):
+         self.colourButtonFg = gtk.Button('Foreground')
+         self.colourButtonFg.connect('clicked', self.changeColourFg)
+         self.colourButtonFg.show()
+-        self.fbox1.pack_start(self.colourButtonFg, expand=gtk.TRUE, padding=5)
++        self.fbox1.pack_start(self.colourButtonFg, expand=True, padding=5)
+         
+         self.colourButtonBg = gtk.Button('Background')
+         self.colourButtonBg.connect('clicked', self.changeColourBg)
+         self.colourButtonBg.show()
+-        self.fbox1.pack_start(self.colourButtonBg, expand=gtk.TRUE, padding=5)
++        self.fbox1.pack_start(self.colourButtonBg, expand=True, padding=5)
+         
+         # A frame holding menu and checkbutton for
+         # changing the current shape attributes.
+@@ -341,29 +341,23 @@ class ShapesWindow(gtk.Window):
+         self.fbox2.set_border_width(10)
+         self.fbox2.show()
+         self.shapeFrame.add(self.fbox2)
+-        
+         # This is the option menu that lets the
+         # user change the shape.
+-        self.shapeMenu = gtk.Menu()
++        self.shapeOptions = gtk.combo_box_new_text()
+         for shape in self.shape.availableShapes:
+-            item = gtk.MenuItem(shape)
+-            item.show()
+-            self.shapeMenu.append(item)
+-        self.shapeOptions = gtk.OptionMenu()
+-        self.shapeOptions.set_menu(self.shapeMenu)
+-        self.shapeOptions.set_history(0)
+-        self.shape.currentShape = self.shape.availableShapes[0]
++            self.shapeOptions.append_text(shape)
+         self.shapeOptions.connect('changed', self.shapeChanged)
++        self.shapeOptions.set_active(0)
+         self.shapeOptions.show()
+-        self.fbox2.pack_start(self.shapeOptions, expand=gtk.TRUE, padding=5)
++        self.fbox2.pack_start(self.shapeOptions, expand=True, padding=5)
+         
+         self.solidButton = gtk.CheckButton('Solid Shape')
+         self.solidButton.connect('toggled', self.shapeSolidityToggled)
+         self.solidButton.show()
+-        self.fbox2.pack_start(self.solidButton, expand=gtk.TRUE, padding=5)
++        self.fbox2.pack_start(self.solidButton, expand=True, padding=5)
+     
+     def shapeChanged(self, option):
+-        self.shape.currentShape = self.shape.availableShapes[option.get_history()]
++        self.shape.currentShape = self.shape.availableShapes[self.shapeOptions.get_active()]
+         self.glarea.queue_draw()
+     
+     def shapeSolidityToggled(self, button):
+@@ -375,7 +369,7 @@ class ShapesWindow(gtk.Window):
+         dialog.set_transient_for(self)
+         
+         colorsel = dialog.colorsel
+-        colorsel.set_has_palette(gtk.TRUE)
++        colorsel.set_has_palette(True)
+         
+         response = dialog.run()
+         if response == gtk.RESPONSE_OK:
+@@ -390,7 +384,7 @@ class ShapesWindow(gtk.Window):
+         dialog.set_transient_for(self)
+         
+         colorsel = dialog.colorsel
+-        colorsel.set_has_palette(gtk.TRUE)
++        colorsel.set_has_palette(True)
+         
+         response = dialog.run()
+         if response == gtk.RESPONSE_OK:
+diff --git a/examples/SimpleScene.py b/examples/SimpleScene.py
+index 754766b..90bbc33 100644
+--- a/examples/SimpleScene.py
++++ b/examples/SimpleScene.py
+@@ -94,18 +94,18 @@ class Simple(GLScene):
+         glPushMatrix()
+         glTranslatef(-0.75, 0.5, 0.0);
+         glRotatef(90.0, 1.0, 0.0, 0.0)
+-        gtk.gdkgl.draw_torus(gtk.TRUE, 0.275, 0.85, 15, 15)
++        gtk.gdkgl.draw_torus(True, 0.275, 0.85, 15, 15)
+         glPopMatrix()
+         
+         glPushMatrix()
+         glTranslatef(-0.75, -0.5, 0.0);
+         glRotatef(270.0, 1.0, 0.0, 0.0)
+-        gtk.gdkgl.draw_cone(gtk.TRUE, 1.0, 2.0, 15, 15)
++        gtk.gdkgl.draw_cone(True, 1.0, 2.0, 15, 15)
+         glPopMatrix()
+         
+         glPushMatrix()
+         glTranslatef(0.75, 0.0, -1.0)
+-        gtk.gdkgl.draw_sphere(gtk.TRUE, 1.0, 15, 15)
++        gtk.gdkgl.draw_sphere(True, 1.0, 15, 15)
+         glPopMatrix()
+         glPopMatrix()
+     
+diff --git a/examples/button.py b/examples/button.py
+index c1fc8bc..2038321 100644
+--- a/examples/button.py
++++ b/examples/button.py
+@@ -14,6 +14,7 @@ import pygtk
+ pygtk.require('2.0')
+ import gtk
+ import gtk.gtkgl
++import gobject
+ 
+ from OpenGL.GL import *
+ from OpenGL.GLU import *
+@@ -41,7 +42,7 @@ class ButtonDemo (object):
+         self.win.set_title('Button with Bouncing Torus')
+         if sys.platform != 'win32':
+             self.win.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.win.set_reallocate_redraws(gtk.TRUE)
++        self.win.set_reallocate_redraws(True)
+         self.win.set_border_width(10)
+         self.win.connect('destroy', lambda quit: gtk.main_quit())
+ 
+@@ -66,7 +67,7 @@ class ButtonDemo (object):
+         self.vbox = gtk.VBox()
+         self.vbox.set_border_width(10)
+         self.vbox.pack_start(self.glarea)
+-        self.vbox.pack_start(self.label, gtk.FALSE, gtk.FALSE, 10)
++        self.vbox.pack_start(self.label, False, False, 10)
+         self.vbox.show()
+ 
+         # The toggle button itself.
+@@ -81,7 +82,7 @@ class ButtonDemo (object):
+         self.angle = 0.0
+         self.pos_y = 0.0
+ 
+-        self.__enable_timeout = gtk.TRUE
++        self.__enable_timeout = True
+         self.__timeout_interval = 10
+         self.__timeout_id = 0
+ 
+@@ -171,7 +172,7 @@ class ButtonDemo (object):
+         glMaterialfv (GL_FRONT, GL_DIFFUSE, mat_diffuse)
+         glMaterialfv (GL_FRONT, GL_SPECULAR, mat_specular)
+         glMaterialf (GL_FRONT, GL_SHININESS, mat_shininess)
+-        gtk.gdkgl.draw_torus (gtk.TRUE, 0.3, 0.6, 30, 30)
++        gtk.gdkgl.draw_torus (True, 0.3, 0.6, 30, 30)
+         glPopMatrix ()
+ 
+         if gldrawable.is_double_buffered():
+@@ -194,31 +195,31 @@ class ButtonDemo (object):
+         self.pos_y = 2.0 * (math.sin (t) + 0.4 * math.sin (3.0*t)) - 1.0
+ 
+         # Invalidate whole window.
+-        self.glarea.window.invalidate_rect(self.glarea.allocation, gtk.FALSE)
++        self.glarea.window.invalidate_rect(self.glarea.allocation, False)
+         # Update window synchronously (fast).
+-        self.glarea.window.process_updates(gtk.FALSE)
++        self.glarea.window.process_updates(False)
+ 
+-        return gtk.TRUE
++        return True
+ 
+     def __timeout_add(self):
+         if self.__timeout_id == 0:
+-            self.__timeout_id = gtk.timeout_add(self.__timeout_interval,
++            self.__timeout_id = gobject.timeout_add(self.__timeout_interval,
+                                                 self.__timeout,
+                                                 self.glarea)
+ 
+     def __timeout_remove(self):
+         if self.__timeout_id != 0:
+-            gtk.timeout_remove(self.__timeout_id)
++            gobject.source_remove(self.__timeout_id)
+             self.__timeout_id = 0
+ 
+     def __map_event(self, widget, event):
+         if self.__enable_timeout:
+             self.__timeout_add()
+-        return gtk.TRUE
++        return True
+ 
+     def __unmap_event(self, widget, event):
+         self.__timeout_remove()
+-        return gtk.TRUE
++        return True
+ 
+     def __visibility_notify_event(self, widget, event):
+         if self.__enable_timeout:
+@@ -226,7 +227,7 @@ class ButtonDemo (object):
+                 self.__timeout_remove()
+             else:
+                 self.__timeout_add()
+-        return gtk.TRUE
++        return True
+ 
+     def toggle_animation(self, widget):
+         self.__enable_timeout = not self.__enable_timeout;
+@@ -235,7 +236,7 @@ class ButtonDemo (object):
+         else:
+             self.__timeout_remove()
+             self.glarea.window.invalidate_rect(self.glarea.allocation,
+-                                               gtk.FALSE)
++                                               False)
+ 
+     def run (self):
+         self.win.show()
+diff --git a/examples/color.py b/examples/color.py
+index 0d2f4ce..e9e3e71 100644
+--- a/examples/color.py
++++ b/examples/color.py
+@@ -43,16 +43,16 @@ class ColorManagementDemo(object):
+             # Try to allocate non-writeable and perfect match colours.
+             try:
+                 colormap = self.glconfig.get_colormap()
+-                self.BLACK = colormap.alloc_color(0x0, 0x0, 0x0, gtk.FALSE, gtk.FALSE)
+-                self.RED = colormap.alloc_color(0xffff, 0x0, 0x0, gtk.FALSE, gtk.FALSE)
++                self.BLACK = colormap.alloc_color(0x0, 0x0, 0x0, False, False)
++                self.RED = colormap.alloc_color(0xffff, 0x0, 0x0, False, False)
+                 # Raise this dummy exception for testing to
+                 # see if switching to RGB mode occurs
+                 # properly. Currently commented out, but
+                 # uncomment if necessary for testing.
+                 #
+                 #raise RuntimeError
+-                self.GREEN = colormap.alloc_color(0x0, 0xffff, 0x0, gtk.FALSE, gtk.FALSE)
+-                self.BLUE = colormap.alloc_color(0x0, 0x0, 0xffff, gtk.FALSE, gtk.FALSE)
++                self.GREEN = colormap.alloc_color(0x0, 0xffff, 0x0, False, False)
++                self.BLUE = colormap.alloc_color(0x0, 0x0, 0xffff, False, False)
+                 self.render_type = gtk.gdkgl.COLOR_INDEX_TYPE
+             except RuntimeError:
+                 print 'Could not allocate colours in Index mode.'
+@@ -70,7 +70,7 @@ class ColorManagementDemo(object):
+         self.win.set_title('color')
+         if sys.platform != 'win32':
+             self.win.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.win.set_reallocate_redraws(gtk.TRUE)
++        self.win.set_reallocate_redraws(True)
+         self.win.connect('destroy', lambda quit: gtk.main_quit())
+ 
+         # VBox to hold everything.
+@@ -91,7 +91,7 @@ class ColorManagementDemo(object):
+         # A quit button.
+         button = gtk.Button('Quit')
+         button.connect('clicked', lambda quit: self.win.destroy())
+-        vbox.pack_start(button, expand=gtk.FALSE)
++        vbox.pack_start(button, expand=False)
+         button.show()
+ 
+     def __create_Color_objects (self):
+@@ -130,7 +130,7 @@ class ColorManagementDemo(object):
+         # OpenGL end
+         gldrawable.gl_end()
+         
+-        return gtk.TRUE
++        return True
+     
+     def __expose_event(self, widget, event):
+         # Get GLContext and GLDrawable
+@@ -164,7 +164,7 @@ class ColorManagementDemo(object):
+         # OpenGL end
+         gldrawable.gl_end()
+         
+-        return gtk.TRUE
++        return True
+     
+     def run(self):
+         self.win.show()
+diff --git a/examples/coolwave.py b/examples/coolwave.py
+index 7523c6a..195d359 100644
+--- a/examples/coolwave.py
++++ b/examples/coolwave.py
+@@ -246,10 +246,10 @@ class CoolWave (GLScene,
+         pass
+ 
+     def button_motion (self, width, height, event):
+-        if event.state == gtk.gdk.BUTTON1_MASK:
++        if event.state & gtk.gdk.BUTTON1_MASK:
+             self.__sphi += (event.x - self.__beginX)/4.0
+             self.__stheta += (self.__beginY - event.y)/4.0
+-        elif event.state == gtk.gdk.BUTTON2_MASK:
++        elif event.state & gtk.gdk.BUTTON2_MASK:
+             self.__sdepth += (self.__beginY - event.y)/10.0
+         self.__beginX = event.x
+         self.__beginY = event.y
+diff --git a/examples/font.py b/examples/font.py
+index 4e53c51..d12fc25 100644
+--- a/examples/font.py
++++ b/examples/font.py
+@@ -38,7 +38,7 @@ class FontDemo(object):
+         self.win.set_title('simple')
+         if sys.platform != 'win32':
+             self.win.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.win.set_reallocate_redraws(gtk.TRUE)
++        self.win.set_reallocate_redraws(True)
+         self.win.connect('destroy', lambda quit: gtk.main_quit())
+ 
+         # VBox to hold everything.
+@@ -59,7 +59,7 @@ class FontDemo(object):
+         # A quit button.
+         self.button = gtk.Button('Quit')
+         self.button.connect('clicked', lambda quit: self.win.destroy())
+-        self.vbox.pack_start(self.button, expand=gtk.FALSE)
++        self.vbox.pack_start(self.button, expand=False)
+         self.button.show()
+ 
+         self.fontString = 'courier 12'
+diff --git a/examples/gears-darea.py b/examples/gears-darea.py
+index 8edb266..587686f 100644
+--- a/examples/gears-darea.py
++++ b/examples/gears-darea.py
+@@ -15,6 +15,7 @@ import pygtk
+ pygtk.require('2.0')
+ import gtk
+ import gtk.gtkgl
++import gobject
+ 
+ from OpenGL.GL import *
+ 
+@@ -179,7 +180,7 @@ def draw(glarea, event):
+     
+     gldrawable.gl_end()
+     
+-    return gtk.TRUE
++    return True
+ 
+ def reshape(glarea, event):
+     # get GLContext and GLDrawable
+@@ -207,7 +208,7 @@ def reshape(glarea, event):
+     
+     gldrawable.gl_end()
+     
+-    return gtk.TRUE
++    return True
+ 
+ def init(glarea):
+     # get GLContext and GLDrawable
+@@ -257,14 +258,14 @@ def idle(glarea):
+     global angle
+     angle = angle + 2.0
+     # Invalidate whole window.
+-    glarea.window.invalidate_rect(glarea.allocation, gtk.FALSE)
++    glarea.window.invalidate_rect(glarea.allocation, False)
+     # Update window synchronously (fast).
+-    glarea.window.process_updates(gtk.FALSE)
+-    return gtk.TRUE
++    glarea.window.process_updates(False)
++    return True
+ 
+ def map(glarea, event):
+-    gtk.idle_add(idle, glarea)
+-    return gtk.TRUE
++    gobject.idle_add(idle, glarea)
++    return True
+ 
+ def xchange(adj):
+     global view_rotx
+@@ -329,9 +330,9 @@ win.set_title("Gears")
+ 
+ if sys.platform != 'win32':
+     win.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-win.set_reallocate_redraws(gtk.TRUE)
++win.set_reallocate_redraws(True)
+ 
+-win.connect('destroy', gtk.mainquit)
++win.connect('destroy', gtk.main_quit)
+ 
+ #
+ # gtk.Table
+@@ -380,5 +381,5 @@ for row, label, start, cb in ((1, "X Rotation", view_rotx, xchange),
+ 
+ win.show()
+ 
+-gtk.mainloop()
++gtk.main()
+ 
+diff --git a/examples/gears-func.py b/examples/gears-func.py
+index 49277bf..c9c1fee 100644
+--- a/examples/gears-func.py
++++ b/examples/gears-func.py
+@@ -14,6 +14,7 @@ import sys
+ import pygtk
+ pygtk.require('2.0')
+ import gtk
++import gobject
+ import gtk.gtkgl
+ 
+ from OpenGL.GL import *
+@@ -179,7 +180,7 @@ def draw(glarea, event):
+     
+     gldrawable.gl_end()
+     
+-    return gtk.TRUE
++    return True
+ 
+ def reshape(glarea, event):
+     # get GLContext and GLDrawable
+@@ -207,7 +208,7 @@ def reshape(glarea, event):
+     
+     gldrawable.gl_end()
+     
+-    return gtk.TRUE
++    return True
+ 
+ def init(glarea):
+     # get GLContext and GLDrawable
+@@ -257,14 +258,14 @@ def idle(glarea):
+     global angle
+     angle = angle + 2.0
+     # Invalidate whole window.
+-    glarea.window.invalidate_rect(glarea.allocation, gtk.FALSE)
++    glarea.window.invalidate_rect(glarea.allocation, False)
+     # Update window synchronously (fast).
+-    glarea.window.process_updates(gtk.FALSE)
+-    return gtk.TRUE
++    glarea.window.process_updates(False)
++    return True
+ 
+ def map(glarea, event):
+-    gtk.idle_add(idle, glarea)
+-    return gtk.TRUE
++    gobject.idle_add(idle, glarea)
++    return True
+ 
+ def xchange(adj):
+     global view_rotx
+@@ -329,9 +330,9 @@ win.set_title("Gears")
+ 
+ if sys.platform != 'win32':
+     win.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-win.set_reallocate_redraws(gtk.TRUE)
++win.set_reallocate_redraws(True)
+ 
+-win.connect('destroy', gtk.mainquit)
++win.connect('destroy', gtk.main_quit)
+ 
+ #
+ # gtk.Table
+@@ -383,5 +384,5 @@ for row, label, start, cb in ((1, "X Rotation", view_rotx, xchange),
+ 
+ win.show()
+ 
+-gtk.mainloop()
++gtk.main()
+ 
+diff --git a/examples/low-level.py b/examples/low-level.py
+index 600c6b6..f20bb11 100644
+--- a/examples/low-level.py
++++ b/examples/low-level.py
+@@ -33,7 +33,7 @@ class LowLevelDrawingArea(gtk.DrawingArea):
+         # Set colormap for OpenGL visual.
+         self.set_colormap(glconfig.get_colormap())
+         # Disable gtk.Widget's double-buffering feature.
+-        self.set_double_buffered(gtk.FALSE)
++        self.set_double_buffered(False)
+ 
+         self.glconfig = glconfig
+         self.gldrawable = None
+@@ -111,25 +111,25 @@ class LowLevelDrawingArea(gtk.DrawingArea):
+         # GtkDrawingArea sends a configure event
+         # when it's being realized. So we'll
+         # wait till it's been fully realized.
+-        if not self.gldrawable: return gtk.FALSE
++        if not self.gldrawable: return False
+ 
+         # OpenGL begin
+         if not self.gldrawable.gl_begin(self.glcontext):
+-            return gtk.FALSE
++            return False
+ 
+         glViewport(0, 0, self.allocation.width, self.allocation.height)
+ 
+         # OpenGL end
+         self.gldrawable.gl_end()
+ 
+-        return gtk.FALSE
++        return False
+ 
+     def _on_expose_event(self, *args):
+         print "_on_expose_event()"
+ 
+         # OpenGL begin
+         if not self.gldrawable.gl_begin(self.glcontext):
+-            return gtk.FALSE
++            return False
+ 
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+         glCallList(1)
+@@ -142,7 +142,7 @@ class LowLevelDrawingArea(gtk.DrawingArea):
+         # OpenGL end
+         self.gldrawable.gl_end()
+ 
+-        return gtk.FALSE
++        return False
+ 
+     def _on_unrealize(self, *args):
+         print "_on_unrealize()"
+@@ -164,8 +164,8 @@ class LowLevelDemo(gtk.Window):
+         self.set_title('low-level')
+         if sys.platform != 'win32':
+             self.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.set_reallocate_redraws(gtk.TRUE)
+-        self.connect('delete_event', gtk.mainquit)
++        self.set_reallocate_redraws(True)
++        self.connect('delete_event', gtk.main_quit)
+ 
+         # VBox to hold everything.
+         vbox = gtk.VBox()
+@@ -206,8 +206,8 @@ class LowLevelDemo(gtk.Window):
+         # A quit button.
+         button = gtk.Button('Quit')
+         # Destroy window on quit explicitly.
+-        button.connect('clicked', gtk.mainquit)
+-        vbox.pack_start(button, expand=gtk.FALSE)
++        button.connect('clicked', gtk.main_quit)
++        vbox.pack_start(button, expand=False)
+ 
+     def _on_quit(self, drawing_area):
+         print "_on_quit()"
+diff --git a/examples/pixmap-mixed.py b/examples/pixmap-mixed.py
+index dd852b8..80bef6a 100644
+--- a/examples/pixmap-mixed.py
++++ b/examples/pixmap-mixed.py
+@@ -89,21 +89,21 @@ class PixmapMixedDrawingArea(gtk.DrawingArea):
+         # Then create an indirect OpenGL rendering context.
+         if not self.glcontext:
+             self.glcontext = gtk.gdkgl.Context(gldrawable,
+-                                               direct=gtk.FALSE)
++                                               direct=False)
+             if not self.glcontext:
+                 raise SystemExit, "** Cannot create OpenGL rendering context!"
+             print "OpenGL rendering context is created."
+             # Init flag.
+-            self.glcontext.is_initialized = gtk.FALSE
++            self.glcontext.is_initialized = False
+ 
+         # OpenGL begin
+         if not gldrawable.gl_begin(self.glcontext):
+-            return gtk.FALSE
++            return False
+ 
+         if not self.glcontext.is_initialized:
+             print "Initialize OpenGL rendering context."
+             self._init_gl()
+-            self.glcontext.is_initialized = gtk.TRUE
++            self.glcontext.is_initialized = True
+ 
+         glViewport(0, 0, self.allocation.width, self.allocation.height)
+ 
+@@ -114,7 +114,7 @@ class PixmapMixedDrawingArea(gtk.DrawingArea):
+ 
+         # Draw a black rectangle using GDK.
+         width, height = gldrawable.get_size()
+-        gldrawable.draw_rectangle(self.get_style().black_gc, gtk.TRUE,
++        gldrawable.draw_rectangle(self.get_style().black_gc, True,
+                                   width/10, height/10,
+                                   width*8/10, height*8/10)
+ 
+@@ -128,7 +128,7 @@ class PixmapMixedDrawingArea(gtk.DrawingArea):
+         # OpenGL end
+         gldrawable.gl_end()
+ 
+-        return gtk.FALSE
++        return False
+ 
+     def _on_expose_event(self, widget, event):
+         # The expose function is rather trivial
+@@ -138,7 +138,7 @@ class PixmapMixedDrawingArea(gtk.DrawingArea):
+         gc = widget.get_style().fg_gc[gtk.STATE_NORMAL]
+         self.window.draw_drawable(gc, self.pixmap, x, y, x, y, width, height)
+         
+-        return gtk.FALSE
++        return False
+ 
+     def _on_unrealize(self, *args):
+         print "Unref pixmap and glcontext."
+@@ -154,7 +154,7 @@ class PixmapMixedDemo(gtk.Window):
+         gtk.Window.__init__(self)
+ 
+         self.set_title('pixmap-mixed')
+-        self.connect('delete_event', gtk.mainquit)
++        self.connect('delete_event', gtk.main_quit)
+ 
+         # VBox to hold everything.
+         vbox = gtk.VBox()
+@@ -192,8 +192,8 @@ class PixmapMixedDemo(gtk.Window):
+ 
+         # A quit button.
+         button = gtk.Button('Quit')
+-        button.connect('clicked', gtk.mainquit)
+-        vbox.pack_start(button, expand=gtk.FALSE)
++        button.connect('clicked', gtk.main_quit)
++        vbox.pack_start(button, expand=False)
+ 
+     def _on_quit(self, drawing_area):
+         # Unrealize drawing_area to destroy the rendering context explicitly.
+diff --git a/examples/pixmap.py b/examples/pixmap.py
+index d464b7d..3afb48a 100644
+--- a/examples/pixmap.py
++++ b/examples/pixmap.py
+@@ -86,21 +86,21 @@ class PixmapDrawingArea(gtk.DrawingArea):
+         # Then create an indirect OpenGL rendering context.
+         if not self.glcontext:
+             self.glcontext = gtk.gdkgl.Context(gldrawable,
+-                                               direct=gtk.FALSE)
++                                               direct=False)
+             if not self.glcontext:
+                 raise SystemExit, "** Cannot create OpenGL rendering context!"
+             print "OpenGL rendering context is created."
+             # Init flag.
+-            self.glcontext.is_initialized = gtk.FALSE
++            self.glcontext.is_initialized = False
+ 
+         # OpenGL begin
+         if not gldrawable.gl_begin(self.glcontext):
+-            return gtk.FALSE
++            return False
+ 
+         if not self.glcontext.is_initialized:
+             print "Initialize OpenGL rendering context."
+             self._init_gl()
+-            self.glcontext.is_initialized = gtk.TRUE
++            self.glcontext.is_initialized = True
+ 
+         glViewport(0, 0, self.allocation.width, self.allocation.height)
+ 
+@@ -112,7 +112,7 @@ class PixmapDrawingArea(gtk.DrawingArea):
+         # OpenGL end
+         gldrawable.gl_end()
+ 
+-        return gtk.FALSE
++        return False
+ 
+     def _on_expose_event(self, widget, event):
+         # The expose function is rather trivial
+@@ -122,7 +122,7 @@ class PixmapDrawingArea(gtk.DrawingArea):
+         gc = widget.get_style().fg_gc[gtk.STATE_NORMAL]
+         self.window.draw_drawable(gc, self.pixmap, x, y, x, y, width, height)
+         
+-        return gtk.FALSE
++        return False
+ 
+     def _on_unrealize(self, *args):
+         print "Unref pixmap and glcontext."
+@@ -138,7 +138,7 @@ class PixmapDemo(gtk.Window):
+         gtk.Window.__init__(self)
+ 
+         self.set_title('pixmap')
+-        self.connect('delete_event', gtk.mainquit)
++        self.connect('delete_event', gtk.main_quit)
+ 
+         # VBox to hold everything.
+         vbox = gtk.VBox()
+@@ -176,8 +176,8 @@ class PixmapDemo(gtk.Window):
+ 
+         # A quit button.
+         button = gtk.Button('Quit')
+-        button.connect('clicked', gtk.mainquit)
+-        vbox.pack_start(button, expand=gtk.FALSE)
++        button.connect('clicked', gtk.main_quit)
++        vbox.pack_start(button, expand=False)
+ 
+     def _on_quit(self, drawing_area):
+         # Unrealize drawing_area to destroy the rendering context explicitly.
+diff --git a/examples/scribble-gl.py b/examples/scribble-gl.py
+index 2e039c2..6057599 100644
+--- a/examples/scribble-gl.py
++++ b/examples/scribble-gl.py
+@@ -48,13 +48,13 @@ class ScribbleGLDemo (gtk.Window):
+ 
+         # A button for clearing the screen.
+         self.cls_button = gtk.Button("Clear Screen")
+-        self.vbox.pack_start(self.cls_button, expand=gtk.FALSE, fill=gtk.FALSE)
++        self.vbox.pack_start(self.cls_button, expand=False, fill=False)
+         self.cls_button.connect("clicked", self.__clear_screen)
+         self.cls_button.show()
+ 
+         # A quit button.
+         self.quit_button = gtk.Button("Quit")
+-        self.vbox.pack_start(self.quit_button, expand=gtk.FALSE, fill=gtk.FALSE)
++        self.vbox.pack_start(self.quit_button, expand=False, fill=False)
+         self.quit_button.connect("clicked", lambda quit: self.destroy())
+         self.quit_button.show()
+ 
+diff --git a/examples/scribbling-worms.py b/examples/scribbling-worms.py
+index b2c4489..369d467 100644
+--- a/examples/scribbling-worms.py
++++ b/examples/scribbling-worms.py
+@@ -49,7 +49,7 @@ try:
+ except:
+     # Show a message dialog before exiting.
+     dlg = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE, "Threading enabled PyGtk required")
+-    dlg.set_resizable(gtk.FALSE)
++    dlg.set_resizable(False)
+     dlg.set_position(gtk.WIN_POS_CENTER)
+     dlg.run()
+     raise SystemExit
+@@ -194,11 +194,11 @@ class ScribblingWormsDemo (gtk.Window, Thread):
+         # A frame containing new worm properties.
+         self.prop_frame = gtk.Frame("New Worm Properties")
+         self.prop_frame.set_label_align(0.02, 0.5)
+-        self.vbox.pack_start(self.prop_frame, expand=gtk.FALSE, fill=gtk.FALSE, padding=5)
++        self.vbox.pack_start(self.prop_frame, expand=False, fill=False, padding=5)
+         self.prop_frame.show()
+ 
+         # A table inside the frame.
+-        self.prop_table = gtk.Table(2,2, gtk.TRUE)
++        self.prop_table = gtk.Table(2,2, True)
+         self.prop_table.set_border_width(5)
+         self.prop_table.set_col_spacings(3)
+         self.prop_frame.add(self.prop_table)
+@@ -226,13 +226,13 @@ class ScribblingWormsDemo (gtk.Window, Thread):
+ 
+         # A button for clearing the screen.
+         self.cls_button = gtk.Button("Clear Screen")
+-        self.vbox.pack_start(self.cls_button, expand=gtk.FALSE, fill=gtk.FALSE)
++        self.vbox.pack_start(self.cls_button, expand=False, fill=False)
+         self.cls_button.connect("clicked", self.__clear_screen)
+         self.cls_button.show()
+ 
+         # A button to let the user create new worms.
+         self.new_button = gtk.Button("Create New Worm")
+-        self.vbox.pack_start(self.new_button, expand=gtk.FALSE, fill=gtk.FALSE)
++        self.vbox.pack_start(self.new_button, expand=False, fill=False)
+         self.new_button.connect("clicked", self.__start_new_thread)
+         self.new_button.show()
+ 
+diff --git a/examples/share-lists.py b/examples/share-lists.py
+index c37f16d..1b87ec0 100644
+--- a/examples/share-lists.py
++++ b/examples/share-lists.py
+@@ -44,7 +44,7 @@ class ShareListsDemo(object):
+         self.win.set_title('share-lists')
+         if sys.platform != 'win32':
+             self.win.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.win.set_reallocate_redraws(gtk.TRUE)
++        self.win.set_reallocate_redraws(True)
+         self.win.set_border_width(10)
+         self.win.connect('destroy', lambda quit: gtk.main_quit())
+ 
+@@ -62,7 +62,7 @@ class ShareListsDemo(object):
+         glarea.connect_after('realize', self.__realize_main, red)
+         glarea.connect('configure_event', self.__configure_event)
+         glarea.connect('expose_event', self.__expose_event)
+-        vbox.pack_start(glarea, expand=gtk.TRUE, fill=gtk.TRUE, padding=5)
++        vbox.pack_start(glarea, expand=True, fill=True, padding=5)
+         glarea.show()
+ 
+         # Get OpenGL context.
+@@ -78,7 +78,7 @@ class ShareListsDemo(object):
+         glarea.connect_after('realize', self.__realize, green)
+         glarea.connect('configure_event', self.__configure_event)
+         glarea.connect('expose_event', self.__expose_event)
+-        vbox.pack_start(glarea, expand=gtk.TRUE, fill=gtk.TRUE, padding=5)
++        vbox.pack_start(glarea, expand=True, fill=True, padding=5)
+         glarea.show()
+ 
+         # DrawingArea-3 for OpenGL rendering (sub: shares display list).
+@@ -90,13 +90,13 @@ class ShareListsDemo(object):
+         glarea.connect_after('realize', self.__realize, blue)
+         glarea.connect('configure_event', self.__configure_event)
+         glarea.connect('expose_event', self.__expose_event)
+-        vbox.pack_start(glarea, expand=gtk.TRUE, fill=gtk.TRUE, padding=5)
++        vbox.pack_start(glarea, expand=True, fill=True, padding=5)
+         glarea.show()
+ 
+         # A quit button.
+         button = gtk.Button('Quit')
+         button.connect('clicked', lambda quit: self.win.destroy())
+-        vbox.pack_start(button, expand=gtk.FALSE, fill=gtk.FALSE, padding=5)
++        vbox.pack_start(button, expand=False, fill=False, padding=5)
+         button.show()
+ 
+     def __init_gl (self, light_diffuse):
+@@ -174,7 +174,7 @@ class ShareListsDemo(object):
+         # OpenGL end
+         gldrawable.gl_end()
+         
+-        return gtk.TRUE
++        return True
+ 
+     def __expose_event(self, widget, event):
+         # Get GLContext and GLDrawable
+@@ -197,7 +197,7 @@ class ShareListsDemo(object):
+         # OpenGL end
+         gldrawable.gl_end()
+ 
+-        return gtk.TRUE
++        return True
+ 
+     def run(self):
+         self.win.show()
+diff --git a/examples/simple-mixed.py b/examples/simple-mixed.py
+index 64bb511..e129bc1 100644
+--- a/examples/simple-mixed.py
++++ b/examples/simple-mixed.py
+@@ -92,14 +92,14 @@ class SimpleMixedDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+ 
+         # OpenGL begin
+         if not gldrawable.gl_begin(glcontext):
+-            return gtk.FALSE
++            return False
+ 
+         glViewport(0, 0, self.allocation.width, self.allocation.height)
+ 
+         # OpenGL end
+         gldrawable.gl_end()
+ 
+-        return gtk.FALSE
++        return False
+ 
+     def _on_expose_event(self, *args):
+         # Obtain a reference to the OpenGL drawable
+@@ -109,7 +109,7 @@ class SimpleMixedDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+ 
+         # OpenGL begin
+         if not gldrawable.gl_begin(glcontext):
+-            return gtk.FALSE
++            return False
+ 
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+ 
+@@ -118,7 +118,7 @@ class SimpleMixedDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+ 
+         # Draw a black rectangle using GDK.
+         width, height = gldrawable.get_size()
+-        gldrawable.draw_rectangle(self.get_style().black_gc, gtk.TRUE,
++        gldrawable.draw_rectangle(self.get_style().black_gc, True,
+                                   width/10, height/10,
+                                   width*8/10, height*8/10)
+ 
+@@ -138,7 +138,7 @@ class SimpleMixedDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         # OpenGL end
+         gldrawable.gl_end()
+ 
+-        return gtk.FALSE
++        return False
+ 
+ 
+ class SimpleMixedDemo(gtk.Window):
+@@ -150,8 +150,8 @@ class SimpleMixedDemo(gtk.Window):
+         self.set_title('simple-mixed')
+         if sys.platform != 'win32':
+             self.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.set_reallocate_redraws(gtk.TRUE)
+-        self.connect('delete_event', gtk.mainquit)
++        self.set_reallocate_redraws(True)
++        self.connect('delete_event', gtk.main_quit)
+ 
+         # VBox to hold everything.
+         vbox = gtk.VBox()
+@@ -186,8 +186,8 @@ class SimpleMixedDemo(gtk.Window):
+ 
+         # A quit button.
+         button = gtk.Button('Quit')
+-        button.connect('clicked', gtk.mainquit)
+-        vbox.pack_start(button, expand=gtk.FALSE)
++        button.connect('clicked', gtk.main_quit)
++        vbox.pack_start(button, expand=False)
+ 
+ 
+ class _Main(object):
+diff --git a/examples/simple.py b/examples/simple.py
+index 5a3c5de..195ba9c 100644
+--- a/examples/simple.py
++++ b/examples/simple.py
+@@ -89,14 +89,14 @@ class SimpleDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+ 
+         # OpenGL begin
+         if not gldrawable.gl_begin(glcontext):
+-            return gtk.FALSE
++            return False
+ 
+         glViewport(0, 0, self.allocation.width, self.allocation.height)
+ 
+         # OpenGL end
+         gldrawable.gl_end()
+ 
+-        return gtk.FALSE
++        return False
+ 
+     def _on_expose_event(self, *args):
+         # Obtain a reference to the OpenGL drawable
+@@ -106,7 +106,7 @@ class SimpleDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+ 
+         # OpenGL begin
+         if not gldrawable.gl_begin(glcontext):
+-            return gtk.FALSE
++            return False
+ 
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+         glCallList(1)
+@@ -119,7 +119,7 @@ class SimpleDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         # OpenGL end
+         gldrawable.gl_end()
+ 
+-        return gtk.FALSE
++        return False
+ 
+ 
+ class SimpleDemo(gtk.Window):
+@@ -131,8 +131,8 @@ class SimpleDemo(gtk.Window):
+         self.set_title('simple')
+         if sys.platform != 'win32':
+             self.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.set_reallocate_redraws(gtk.TRUE)
+-        self.connect('delete_event', gtk.mainquit)
++        self.set_reallocate_redraws(True)
++        self.connect('delete_event', gtk.main_quit)
+ 
+         # VBox to hold everything.
+         vbox = gtk.VBox()
+@@ -169,8 +169,8 @@ class SimpleDemo(gtk.Window):
+ 
+         # A quit button.
+         button = gtk.Button('Quit')
+-        button.connect('clicked', gtk.mainquit)
+-        vbox.pack_start(button, expand=gtk.FALSE)
++        button.connect('clicked', gtk.main_quit)
++        vbox.pack_start(button, expand=False)
+ 
+ 
+ class _Main(object):
+diff --git a/examples/teapot.py b/examples/teapot.py
+index bc0086b..489269f 100644
+--- a/examples/teapot.py
++++ b/examples/teapot.py
+@@ -18,7 +18,7 @@ from OpenGL.GLU import *
+ rotx = 0
+ roty = 0
+ 
+-is_solid = gtk.FALSE
++is_solid = False
+ 
+ def realize(glarea):
+     # get GLContext and GLDrawable
+@@ -76,7 +76,7 @@ def configure_event(glarea, event):
+     
+     gldrawable.gl_end()
+     
+-    return gtk.TRUE
++    return True
+ 
+ 
+ def expose_event(glarea, event):
+@@ -105,25 +105,25 @@ def expose_event(glarea, event):
+     
+     gldrawable.gl_end()
+     
+-    return gtk.TRUE
++    return True
+ 
+ 
+ def vchanged(vadj, glarea):
+     global rotx
+     rotx = vadj.value
+-    glarea.window.invalidate_rect(glarea.allocation, gtk.FALSE)
++    glarea.window.invalidate_rect(glarea.allocation, False)
+ 
+ 
+ def hchanged(hadj, glarea):
+     global roty
+     roty = hadj.value
+-    glarea.window.invalidate_rect(glarea.allocation, gtk.FALSE)
++    glarea.window.invalidate_rect(glarea.allocation, False)
+ 
+ 
+ def toggled(button, glarea):
+     global is_solid
+     is_solid = not is_solid
+-    glarea.window.invalidate_rect(glarea.allocation, gtk.FALSE)
++    glarea.window.invalidate_rect(glarea.allocation, False)
+ 
+ 
+ #
+@@ -177,9 +177,9 @@ win.set_title("Teapot")
+ 
+ if sys.platform != 'win32':
+     win.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-win.set_reallocate_redraws(gtk.TRUE)
++win.set_reallocate_redraws(True)
+ 
+-win.connect('destroy', gtk.mainquit)
++win.connect('destroy', gtk.main_quit)
+ 
+ #
+ # gtk.Table
+@@ -239,5 +239,5 @@ button.show()
+ 
+ win.show()
+ 
+-gtk.mainloop()
++gtk.main()
+ 
+diff --git a/examples/teapot2.py b/examples/teapot2.py
+index 8685762..f408e88 100644
+--- a/examples/teapot2.py
++++ b/examples/teapot2.py
+@@ -28,7 +28,7 @@ class Teapot(GLScene,
+         self.rotx = 0
+         self.roty = 0
+         
+-        self.is_solid = gtk.FALSE
++        self.is_solid = False
+         
+         self.beginx = 0
+         self.beginy = 0
+@@ -79,7 +79,7 @@ class Teapot(GLScene,
+         pass
+     
+     def button_motion(self, width, height, event):
+-        if event.state == gtk.gdk.BUTTON1_MASK:
++        if event.state & gtk.gdk.BUTTON1_MASK:
+             self.rotx = self.rotx + ((event.y-self.beginy)/width)*360.0
+             self.roty = self.roty + ((event.x-self.beginx)/height)*360.0
+         
+@@ -103,7 +103,7 @@ class TeapotWindow(gtk.Window):
+         self.set_title('Teapot')
+         if sys.platform != 'win32':
+             self.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.set_reallocate_redraws(gtk.TRUE)
++        self.set_reallocate_redraws(True)
+         self.connect('destroy', lambda quit: gtk.main_quit())
+         
+         # Create the table.
+@@ -147,15 +147,15 @@ class TeapotWindow(gtk.Window):
+     
+     def vchanged(self, vadj):
+         self.teapot.rotx = vadj.value
+-        self.glarea.window.invalidate_rect(self.glarea.allocation, gtk.FALSE)
++        self.glarea.window.invalidate_rect(self.glarea.allocation, False)
+     
+     def hchanged(self, hadj):
+         self.teapot.roty = hadj.value
+-        self.glarea.window.invalidate_rect(self.glarea.allocation, gtk.FALSE)
++        self.glarea.window.invalidate_rect(self.glarea.allocation, False)
+     
+     def toggled(self, button):
+         self.teapot.is_solid = not self.teapot.is_solid
+-        self.glarea.window.invalidate_rect(self.glarea.allocation, gtk.FALSE)
++        self.glarea.window.invalidate_rect(self.glarea.allocation, False)
+     
+     def run(self):
+         self.show()
+diff --git a/gtk/gtkgl/apputils.py b/gtk/gtkgl/apputils.py
+index 827aaa8..e95b15b 100644
+--- a/gtk/gtkgl/apputils.py
++++ b/gtk/gtkgl/apputils.py
+@@ -23,6 +23,7 @@ import pygtk
+ pygtk.require('2.0')
+ import gtk
+ import gtk.gtkgl
++import gobject
+ 
+ from OpenGL.GL import *
+ from OpenGL.GLU import *
+@@ -40,10 +41,10 @@ class GLSceneBase(object):
+         self.glarea.queue_draw()
+ 
+     def invalidate(self):
+-        self.glarea.window.invalidate_rect(self.glarea.allocation, gtk.FALSE)
++        self.glarea.window.invalidate_rect(self.glarea.allocation, False)
+ 
+     def update(self):
+-        self.glarea.window.process_updates(gtk.FALSE)
++        self.glarea.window.process_updates(False)
+ 
+     def timeout_is_enabled(self):
+         return self.glarea.timeout_is_enabled()
+@@ -116,6 +117,12 @@ class GLSceneButton(object):
+         """
+         raise NotImplementedError, "must be implemented."
+ 
++    def button_scroll(self, width, height, event):
++        """Process button scroll event.
++        This function is invoked on 'scroll_event' signal.
++        """
++        raise NotImplementedError, "must be implemented."
++
+ 
+ class GLSceneButtonMotion(object):
+     """Button motion event interface mixin."""
+@@ -162,7 +169,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+     """OpenGL drawing area widget."""
+ 
+     def __init__(self, glscene, glconfig=None, share_list=None,
+-                 direct=gtk.TRUE, render_type=gtk.gdkgl.RGBA_TYPE):
++                 direct=True, render_type=gtk.gdkgl.RGBA_TYPE):
+         gtk.DrawingArea.__init__(self)
+ 
+         assert isinstance(glscene, GLScene), "glscene must be GLScene"
+@@ -187,8 +194,10 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         if isinstance(self.glscene, GLSceneButton):
+             self.connect('button_press_event',   self.__button_press_event)
+             self.connect('button_release_event', self.__button_release_event)
++            self.connect('scroll_event', self.__button_scroll_event)
+             self.add_events(gtk.gdk.BUTTON_PRESS_MASK   |
+-                            gtk.gdk.BUTTON_RELEASE_MASK)
++                            gtk.gdk.BUTTON_RELEASE_MASK |
++                            gtk.gdk.SCROLL_MASK)
+ 
+         # Add motion events
+         self.__motion_events = 0
+@@ -202,18 +211,18 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+ 
+         # Enable timeout
+         if isinstance(self.glscene, GLSceneTimeout):
+-            self.__enable_timeout = gtk.TRUE
++            self.__enable_timeout = True
+             self.__timeout_interval = self.glscene.timeout_interval
+         else:
+-            self.__enable_timeout = gtk.FALSE
++            self.__enable_timeout = False
+             self.__timeout_interval = 30
+         self.__timeout_id = 0
+ 
+         # Enable idle
+         if isinstance(self.glscene, GLSceneIdle):
+-            self.__enable_idle = gtk.TRUE
++            self.__enable_idle = True
+         else:
+-            self.__enable_idle = gtk.FALSE
++            self.__enable_idle = False
+         self.__idle_id = 0
+ 
+         self.connect('map_event',               self.__map_event)
+@@ -241,7 +250,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         # Call glscene.init()
+         self.glscene.init()
+         gldrawable.gl_end()
+-        return gtk.TRUE
++        return True
+ 
+     def __configure_event(self, widget, event):
+         """'configure_event' signal handler.
+@@ -254,7 +263,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         self.glscene.reshape(widget.allocation.width,
+                              widget.allocation.height)
+         gldrawable.gl_end()
+-        return gtk.TRUE
++        return True
+ 
+     def __expose_event(self, widget, event):
+         """'expose_event' signal handler.
+@@ -272,7 +281,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         else:
+             glFlush()
+         gldrawable.gl_end()
+-        return gtk.TRUE
++        return True
+ 
+     def __key_press_event(self, widget, event):
+         """'key_press_event' signal handler.
+@@ -282,7 +291,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         self.glscene.key_press(widget.allocation.width,
+                                widget.allocation.height,
+                                event)
+-        return gtk.TRUE
++        return True
+ 
+     def __key_release_event(self, widget, event):
+         """'key_release_event' signal handler.
+@@ -292,7 +301,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         self.glscene.key_release(widget.allocation.width,
+                                  widget.allocation.height,
+                                  event)
+-        return gtk.TRUE
++        return True
+ 
+     def __button_press_event(self, widget, event):
+         """'button_press_event' signal handler.
+@@ -306,7 +315,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+                                   widget.allocation.height,
+                                   event)
+         gldrawable.gl_end()
+-        return gtk.TRUE
++        return True
+ 
+     def __button_release_event(self, widget, event):
+         """'button_release_event' signal handler.
+@@ -320,7 +329,21 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+                                     widget.allocation.height,
+                                     event)
+         gldrawable.gl_end()
+-        return gtk.TRUE
++        return True
++
++    def __button_scroll_event(self, widget, event):
++        """'button_scroll_event' signal handler.
++        This function invokes glscene.button_scroll().
++        """
++        glcontext = widget.get_gl_context()
++        gldrawable = widget.get_gl_drawable()
++        if not gldrawable.gl_begin(glcontext): return
++        # Call glscene.button_scroll()
++        self.glscene.button_scroll(widget.allocation.width,
++                                   widget.allocation.height,
++                                   event)
++        gldrawable.gl_end()
++        return True
+ 
+     def __motion_notify_event(self, widget, event):
+         """'motion_notify_event' signal handler.
+@@ -342,7 +365,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+             self.glscene.pointer_motion(widget.allocation.width,
+                                         widget.allocation.height,
+                                         event)
+-        return gtk.TRUE
++        return True
+ 
+     ## Timeout function management
+ 
+@@ -353,14 +376,14 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         # Call glscene.timeout()
+         self.glscene.timeout(widget.allocation.width,
+                              widget.allocation.height)
+-        return gtk.TRUE
++        return True
+ 
+     def __timeout_add(self):
+         """Add timeout function.
+         """
+         if isinstance(self.glscene, GLSceneTimeout):
+             if self.__timeout_id == 0:
+-                self.__timeout_id = gtk.timeout_add(self.__timeout_interval,
++                self.__timeout_id = gobject.timeout_add(self.__timeout_interval,
+                                                     self.__timeout,
+                                                     self)
+ 
+@@ -368,7 +391,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         """Remove timeout function.
+         """
+         if self.__timeout_id != 0:
+-            gtk.timeout_remove(self.__timeout_id)
++            gobject.source_remove(self.__timeout_id)
+             self.__timeout_id = 0
+ 
+     def timeout_is_enabled(self):
+@@ -395,20 +418,20 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         # Call glscene.idle()
+         self.glscene.idle(widget.allocation.width,
+                           widget.allocation.height)
+-        return gtk.TRUE
++        return True
+ 
+     def __idle_add(self):
+         """Add idle function.
+         """
+         if isinstance(self.glscene, GLSceneIdle):
+             if self.__idle_id == 0:
+-                self.__idle_id = gtk.idle_add(self.__idle, self)
++                self.__idle_id = gobject.idle_add(self.__idle, self)
+ 
+     def __idle_remove(self):
+         """Remove idle function.
+         """
+         if self.__idle_id != 0:
+-            gtk.idle_remove(self.__idle_id)
++            gobject.source_remove(self.__idle_id)
+             self.__idle_id = 0
+ 
+     def idle_is_enabled(self):
+@@ -437,14 +460,14 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+         if self.__enable_idle:
+             self.__idle_add()
+ 
+-        return gtk.TRUE
++        return True
+ 
+     def __unmap_event(self, widget, event):
+         """'unmap_event' signal handler.
+         """
+         self.__timeout_remove()
+         self.__idle_remove()
+-        return gtk.TRUE
++        return True
+ 
+     def __visibility_notify_event(self, widget, event):
+         """'visibility_notify_event' signal handler.
+@@ -461,7 +484,7 @@ class GLArea(gtk.DrawingArea, gtk.gtkgl.Widget):
+             else:
+                 self.__idle_add()
+ 
+-        return gtk.TRUE
++        return True
+ 
+ 
+ ### Simple OpenGL application driver
+@@ -474,8 +497,8 @@ class GLApplication(gtk.Window):
+         self.set_title(name)
+         if sys.platform != 'win32':
+             self.set_resize_mode(gtk.RESIZE_IMMEDIATE)
+-        self.set_reallocate_redraws(gtk.TRUE)
+-        self.connect('destroy', gtk.mainquit)
++        self.set_reallocate_redraws(True)
++        self.connect('destroy', gtk.main_quit)
+ 
+         self.glarea = GLArea(glscene)
+         self.glarea.set_size_request(300, 300)
+@@ -535,6 +558,10 @@ class EmptyScene(GLScene,
+         print "button_release (button=%d, state=%d, x=%d, y=%d)" \
+               % (event.button, event.state, event.x, event.y)
+ 
++    def button_scroll(self, width, height, event):
++        print "button_scroll (direction=%d, state=%d, x=%d, y=%d)" \
++              % (event.direction, event.state, event.x, event.y)
++
+     def button_motion(self, width, height, event):
+         print "button_motion (state=%d, x=%d, y=%d)" \
+               % (event.state, event.x, event.y)
+diff --git a/gtk/gtkgl/widget.py b/gtk/gtkgl/widget.py
+index 5d9a3c1..46b0bff 100644
+--- a/gtk/gtkgl/widget.py
++++ b/gtk/gtkgl/widget.py
+@@ -29,7 +29,7 @@ class Widget(object):
+         raise NotImplementedError, \
+               "%s is an abstract base class" % (self.__class__)
+     
+-    def set_gl_capability(self, glconfig, share_list=None, direct=gtk.TRUE,
++    def set_gl_capability(self, glconfig, share_list=None, direct=True,
+                           render_type=gtk.gdkgl.RGBA_TYPE):
+         return widget_set_gl_capability(self, glconfig, share_list,
+                                         direct, render_type)
+@@ -40,7 +40,7 @@ class Widget(object):
+     def get_gl_config(self):
+         return widget_get_gl_config(self)
+     
+-    def create_gl_context(self, share_list=None, direct=gtk.TRUE,
++    def create_gl_context(self, share_list=None, direct=True,
+                           render_type=gtk.gdkgl.RGBA_TYPE):
+         return widget_create_gl_context(self, share_list, direct, render_type)
+     
+@@ -58,7 +58,7 @@ class Widget(object):
+ class DrawingArea(gtk.DrawingArea, Widget):
+     """OpenGL-capable gtk.DrawingArea."""
+     
+-    def __init__(self, glconfig=None, share_list=None, direct=gtk.TRUE,
++    def __init__(self, glconfig=None, share_list=None, direct=True,
+                  render_type=gtk.gdkgl.RGBA_TYPE):
+         gtk.DrawingArea.__init__(self)
+         if glconfig:
+diff --git a/pygtkglext.doap b/pygtkglext.doap
+new file mode 100644
+index 0000000..c2601b0
+--- /dev/null
++++ b/pygtkglext.doap
+@@ -0,0 +1,28 @@
++<Project xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
++         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
++         xmlns:foaf="http://xmlns.com/foaf/0.1/"
++         xmlns:gnome="http://api.gnome.org/doap-extensions#"
++         xmlns="http://usefulinc.com/ns/doap#">
++
++  <name xml:lang="en">pygtkglext</name>
++  <shortdesc xml:lang="en">Python bindings for gtkglext</shortdesc>
++  <homepage rdf:resource="http://projects.gnome.org/gtkglext/" />
++  <mailing-list rdf:resource="http://mail.gnome.org/mailman/listinfo/gtkglext-list" />
++
++  <maintainer>
++    <foaf:Person>
++      <foaf:name>Braden McDaniel</foaf:name>
++      <foaf:mbox rdf:resource="mailto:braden@endoframe.com" />
++      <gnome:userid>bradenmcd</gnome:userid>
++    </foaf:Person>
++  </maintainer>
++
++  <maintainer>
++    <foaf:Person>
++      <foaf:name>Mukund Sivaraman</foaf:name>
++      <foaf:mbox rdf:resource="mailto:muks@banu.com" />
++      <gnome:userid>muks</gnome:userid>
++    </foaf:Person>
++  </maintainer>
++
++</Project>
+diff --git a/setup.py b/setup.py
+index f2a75a5..93ce468 100644
+--- a/setup.py
++++ b/setup.py
+@@ -21,7 +21,7 @@ from dsextras import Template, TemplateExtension
+ 
+ MAJOR_VERSION = 1
+ MINOR_VERSION = 0
+-MICRO_VERSION = 1
++MICRO_VERSION = 0
+ 
+ VERSION = "%d.%d.%d" % (MAJOR_VERSION,
+                         MINOR_VERSION,
+@@ -36,7 +36,7 @@ API_VERSION = "%d.%d" % (API_MAJOR_VERSION,
+ GTKGLEXT_PKG = 'gtkglext-1.0'
+ GTKGLEXT_REQUIRED_VERSION = '1.0.0'
+ 
+-PYGTK_REQUIRED_VERSION = '2.0.0'
++PYGTK_REQUIRED_VERSION = '2.6.0'
+ 
+ PYGTK_SUFFIX = '2.0'
+ PYGTK_SUFFIX_LONG = 'gtk-' + PYGTK_SUFFIX
