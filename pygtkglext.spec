@@ -4,7 +4,7 @@
 #
 Name     : pygtkglext
 Version  : 1.0.1
-Release  : 1
+Release  : 2
 URL      : http://downloads.sourceforge.net/gtkglext/pygtkglext-1.0.1.tar.gz
 Source0  : http://downloads.sourceforge.net/gtkglext/pygtkglext-1.0.1.tar.gz
 Summary  : Python Bindings for GtkGLExt
@@ -28,7 +28,6 @@ BuildRequires : pygtk-legacypython
 BuildRequires : python-dev
 BuildRequires : python3-dev
 Patch1: update.patch
-Patch2: modern.patch
 
 %description
 PyGtkGLExt is Python language bindings for GtkGLExt, OpenGL Extension to GTK.
@@ -80,14 +79,13 @@ python components for the pygtkglext package.
 %prep
 %setup -q -n pygtkglext-1.0.1
 %patch1 -p1
-%patch2 -p1
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1543753461
+export SOURCE_DATE_EPOCH=1543754479
 %configure --disable-static PYTHON=/usr/bin/python2
 make  %{?_smp_mflags}
 
@@ -99,7 +97,7 @@ export no_proxy=localhost,127.0.0.1,0.0.0.0
 make VERBOSE=1 V=1 %{?_smp_mflags} check
 
 %install
-export SOURCE_DATE_EPOCH=1543753461
+export SOURCE_DATE_EPOCH=1543754479
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/pygtkglext
 cp COPYING %{buildroot}/usr/share/package-licenses/pygtkglext/COPYING
