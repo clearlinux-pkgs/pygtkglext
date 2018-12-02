@@ -4,7 +4,7 @@
 #
 Name     : pygtkglext
 Version  : 1.0.1
-Release  : 3
+Release  : 4
 URL      : http://downloads.sourceforge.net/gtkglext/pygtkglext-1.0.1.tar.gz
 Source0  : http://downloads.sourceforge.net/gtkglext/pygtkglext-1.0.1.tar.gz
 Summary  : Python Bindings for GtkGLExt
@@ -87,7 +87,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1543754763
+export SOURCE_DATE_EPOCH=1543764041
 %configure --disable-static PYTHON=/usr/bin/python2
 make  %{?_smp_mflags}
 
@@ -99,7 +99,7 @@ export no_proxy=localhost,127.0.0.1,0.0.0.0
 make VERBOSE=1 V=1 %{?_smp_mflags} check
 
 %install
-export SOURCE_DATE_EPOCH=1543754763
+export SOURCE_DATE_EPOCH=1543764041
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/pygtkglext
 cp COPYING %{buildroot}/usr/share/package-licenses/pygtkglext/COPYING
