@@ -4,7 +4,7 @@
 #
 Name     : pygtkglext
 Version  : 1.0.1
-Release  : 2
+Release  : 3
 URL      : http://downloads.sourceforge.net/gtkglext/pygtkglext-1.0.1.tar.gz
 Source0  : http://downloads.sourceforge.net/gtkglext/pygtkglext-1.0.1.tar.gz
 Summary  : Python Bindings for GtkGLExt
@@ -14,6 +14,8 @@ Requires: pygtkglext-data = %{version}-%{release}
 Requires: pygtkglext-license = %{version}-%{release}
 Requires: pygtkglext-python = %{version}-%{release}
 BuildRequires : buildreq-distutils3
+BuildRequires : buildreq-gnome
+BuildRequires : freetype-dev
 BuildRequires : gfortran
 BuildRequires : glu-dev
 BuildRequires : gtk+-dev
@@ -85,7 +87,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1543754479
+export SOURCE_DATE_EPOCH=1543754763
 %configure --disable-static PYTHON=/usr/bin/python2
 make  %{?_smp_mflags}
 
@@ -97,7 +99,7 @@ export no_proxy=localhost,127.0.0.1,0.0.0.0
 make VERBOSE=1 V=1 %{?_smp_mflags} check
 
 %install
-export SOURCE_DATE_EPOCH=1543754479
+export SOURCE_DATE_EPOCH=1543754763
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/pygtkglext
 cp COPYING %{buildroot}/usr/share/package-licenses/pygtkglext/COPYING

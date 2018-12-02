@@ -8,3 +8,5 @@ glu-dev
 gtk+-dev
 gfortran
 python3-dev
+freetype-dev
+buildreq-gnome
